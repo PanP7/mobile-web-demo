@@ -4,8 +4,12 @@
     <title></title>
     <link rel="stylesheet" type="text/css" href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css">
     <script type='text/javascript' src='js/zepto.min.js'></script>        
+    <script type='text/javascript' src='js/touch.js'></script> 
     <script type='text/javascript' src="js/bootstrap.min.js"></script>
     <script type='text/javascript' src="js/iscroll.js"></script>
+    <script type='text/javascript' src="js/handlebars.js"></script>
+    <script type='text/javascript' src="js/underscore-min.js"></script>
+    <script type='text/javascript' src="js/backbone-min.js"></script>
     <style>
       body {
         overflow: hidden; 
@@ -55,9 +59,9 @@
         width:100%;
       }
       .transition {
-        -moz-transition-duration: .3s;
-        -webkit-transition-duration: .3s;
-        -o-transition-duration: .3s;
+        -moz-transition-duration: .2s;
+        -webkit-transition-duration: .2s;
+        -o-transition-duration: .2s;
       }
 
       .navbar .navbar-inner {
@@ -67,6 +71,9 @@
       .navbar .navbar-inner .btn-navbar {
         display: block;
         float: left; 
+      }
+      .navbar-inverse .brand:hover {
+        color:#999;
       }
       .content-inner {
         padding:55px 15px 15px;
@@ -121,46 +128,86 @@
         margin-right: -6px;
         opacity: .25;
       }
+      
+      .scrollyV {
+	position:absolute;
+	z-index:100;
+	width:4px;bottom:7px;top:2px;right:1px
+      }
+
+      .scrollyV > div {
+	position:absolute;
+	z-index:100;
+	width:100%;
+
+	/* The following is probably what you want to customize */
+	background:#ccc;
+	-webkit-background-clip:padding-box;
+	-webkit-box-sizing:border-box;
+	-webkit-border-radius:2px;
+      }
     </style>
     <script>
       Zepto(function($){
+        //define Router
+        AppRouter = Backbone.Router.extend({
+            routes: {
+              "":"frontPage",
+              "item/:name":"listPage",
+              "item/:name/:id":"itemPage"
+            },
+
+            frontPage: function() {
+              loadPage('Front page', renderFrontContent, 'front-page');
+            },
+            listPage: function (name) {
+              loadPage(name, renderListContent, 'list-page');
+            },
+            itemPage: function (name, id) {
+              loadPage(name + ' ' + id, renderItemContent, 'item-page');
+            }
+        });
+        var appRouter = new AppRouter();
+        Backbone.history.start();
+        
         function loadPage(text, next, className) {
-          var loadingMarkup = '<p id="loading">Loading<br/><span>.</span><span>.</span><span>.</span></p>';
-          var backlinkMarkup = '<div class="navbar-inner"><ul class="nav"><li><a class="backlink" href="#"><i class="icon-chevron-left icon-white"></i><span id="brand">' + text + '</span></a></li></ul></div>';
-          var toprailMarkup = '<div class="toprail navbar navbar-inverse">' + backlinkMarkup + '</div>'; 
-          var pageMarkup = toprailMarkup + '<div class="content"><div class="content-inner">' + loadingMarkup + '</div></div>';
-          changePage($('<div class="page ' + className + '">' + pageMarkup + '</div>'));
+          var pageTemplate = Handlebars.compile($("#page-tpl").html());
+          var page = $(pageTemplate({pageClassName: className, pageTitle: text}));
+          changePage(page);
           window.setTimeout(next, 1000, text);
-        }
-                
-        function renderListContent(text) {
-          var content = '';
-          for (var i = 0; i < 25; i++) content += '<li><a href="#"><i class="icon-chevron-right"></i>' + text + ' ' + i + '</a></li>'
-          content = '<ul class="nav nav-tabs nav-stacked">' + content + '</ul>';
-          $('.stage-center .content-inner').html(content);
-          $('.stage-center .content-inner .nav a').click(function(){
-            loadPage($(this).text(), renderItemContent, 'item-page');
-          });
-          contentScroll = new iScroll($('.stage-center .content').get(0));
-        }
-                
-        function renderItemContent(text) {
-          var content = '';
-          for (var i = 0; i < 1000; i++) content += '' + text + ' ';
-          $('.stage-center .content-inner').html(content);
-          contentScroll = new iScroll($('.stage-center .content').get(0));
         }
         
         function changePage(page) {
-          var disabled = $('.stage-center').hasClass('disabled');
+          if ($('.stage-center').hasClass('disabled')) {
+            $(page).addClass('disabled');
+          }
           $('.page').remove();
-          $(page).addClass(disabled ? 'page stage-center disabled transition' : 'page stage-center transition');
+          $(page).addClass('page stage-center transition');
           $('body').append(page);
           
           setTimeout(function() {
             $(page).removeClass('disabled');
             registerPageEvents();
           });
+        }
+
+        function renderFrontContent(text) {
+          $('.stage-center .content-inner').html(text);
+        }
+
+        function renderListContent(text) {
+          var content = '';
+          for (var i = 0; i < 50; i++) content += '<li><a href="#item/' + text + '/' + i + '"><i class="icon-chevron-right"></i>' + text + ' ' + i + '</a></li>'
+          content = '<ul class="nav nav-tabs nav-stacked">' + content + '</ul>';
+          $('.stage-center .content-inner').html(content);
+          contentScroll = new iScroll($('.stage-center .content').get(0), { scrollbarClass: 'scrolly' });
+        }
+                
+        function renderItemContent(text) {
+          var content = '';
+          for (var i = 0; i < 1000; i++) content += '' + text + ' ';
+          $('.stage-center .content-inner').html(content);
+          contentScroll = new iScroll($('.stage-center .content').get(0), { scrollbarClass: 'scrolly' });
         }
                 
         function registerPageEvents() {
@@ -169,14 +216,13 @@
             $(this).removeClass('disabled');
           });
                     
-          $('.backlink').bind('touchstart mousedown', function(e) {
-            if ($('.stage-center').hasClass('item-page')) {
-              
-            }
-            else {
-              $('.stage-center').toggleClass('disabled');
-            }
+          $('.menulink').bind('touchstart mousedown', function(e) {
+            $('.stage-center').toggleClass('disabled');
             return false;
+          });
+          
+          $('.stage-center').swipeRight(function() {
+            $('.stage-center').addClass('disabled');
           });
         }
         
@@ -190,10 +236,8 @@
           $('#leftrail a').click(function() {
             $('#leftrail li.active').removeClass('active');
             $(this).parent().addClass('active');
-            loadPage($(this).html(), renderListContent, 'list-page');                    
           });
-          registerPageEvents();
-          leftrailScroll = new iScroll($('#leftrail').get(0));
+          leftrailScroll = new iScroll($('#leftrail').get(0), { scrollbarClass: 'scrolly' });
         }
         
         initialize();
@@ -201,88 +245,59 @@
     </script>
   </head>
   <body>
+    <script id="page-tpl" type="text/x-handlebars-template">
+      <div class="page {{pageClassName}}">
+        <div class="toprail navbar navbar-inverse">
+          <div class="navbar-inner">
+            <a class="btn btn-navbar menulink">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </a>
+            <span class="brand">{{pageTitle}}</span>
+            <div class="nav pull-right">
+              <!--<a href="#" class="btn btn-inverse "><i class="icon-white icon-chevron-left"></i> Back</a>-->
+            </div>
+          </div>
+        </div>
+        <div class="content">
+          <div class="content-inner">
+            <p id="loading">Loading<br/><span>.</span><span>.</span><span>.</span></p>
+          </div>
+        </div>
+      </div>
+    </script>
+    
     <div id="leftrail">
       <ul class="nav nav-list nav-inverse">
         <li class="nav-header">List header</li>
-        <li class="active"><a href="#">Home</a></li>
-        <li><a href="#">Library</a></li>
-        <li><a href="#">Applications</a></li>
+        <li><a href="#item/home">Home</a></li>
+        <li><a href="#item/library">Library</a></li>
+        <li><a href="#item/applications">Applications</a></li>
         <li class="nav-header">Another list header</li>
-        <li><a href="#">Profile</a></li>
-        <li><a href="#">Settings</a></li>
+        <li><a href="#item/profile">Profile</a></li>
+        <li><a href="#item/settings">Settings</a></li>
         <li class="divider"></li>
-        <li><a href="#">Help</a></li>
+        <li><a href="#item/help">Help</a></li>
         <li class="nav-header">List header</li>
-        <li><a href="#">Home</a></li>
-        <li><a href="#">Library</a></li>
-        <li><a href="#">Applications</a></li>
+        <li><a href="#item/home">Home</a></li>
+        <li><a href="#item/library">Library</a></li>
+        <li><a href="#item/applications">Applications</a></li>
         <li class="nav-header">Another list header</li>
-        <li><a href="#">Profile</a></li>
-        <li><a href="#">Settings</a></li>
+        <li><a href="#item/profile">Profile</a></li>
+        <li><a href="#item/settings">Settings</a></li>
         <li class="divider"></li>
-        <li><a href="#">Help</a></li> 
+        <li><a href="#item/help">Help</a></li>
         <li class="nav-header">List header</li>
-        <li><a href="#">Home</a></li>
-        <li><a href="#">Library</a></li>
-        <li><a href="#">Applications</a></li>
+        <li><a href="#item/home">Home</a></li>
+        <li><a href="#item/library">Library</a></li>
+        <li><a href="#item/applications">Applications</a></li>
         <li class="nav-header">Another list header</li>
-        <li><a href="#">Profile</a></li>
-        <li><a href="#">Settings</a></li>
+        <li><a href="#item/profile">Profile</a></li>
+        <li><a href="#item/settings">Settings</a></li>
         <li class="divider"></li>
-        <li><a href="#">Help</a></li>               
+        <li><a href="#item/help">Help</a></li>        
       </ul>
     </div>
-
-    <div class="page stage-center transition">
-      <div class="toprail navbar navbar-inverse">
-        <div class="navbar-inner" >
-          <ul class="nav">
-            <li>
-              <a class="backlink" href="#"><i class="icon-chevron-left icon-white"></i>&nbsp;<span id="brand">Home</span></a>
-            </li>
-          </ul>
-          <ul class="nav pull-right">
-            <li class="dropdown">
-              <button type="button" class="btn btn-navbar dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
-              <ul class="dropdown-menu">
-                <li><a href="javascript:alert(1)">Action</a></li>
-                <li><a href="#">Another action</a></li>
-                <li><a href="#">Something else here</a></li>
-                <li class="divider"></li>
-                <li><a href="#">Separated link</a></li>
-              </ul>
-            </li>
-          </ul>
-        </div>
-      </div>
-      <div class="content">
-        <div class="content-inner">
-          <center>
-            <h4>What are you searching for?</h4>
-            <div class="btn-group">
-              <button class="btn">Case</button>
-              <button class="btn active">Claim</button>
-              <button class="btn">Docket</button>
-              <button class="btn">Document</button>
-            </div>
-            <br/><br/>
-            <div>
-              <input type="text" placeholder="Enter a claim id or name…" class="input-xlarge">
-            </div>
-            <br/><br/>
-            <h4>Search within...</h4>
-            <div class="btn-group">
-              <button class="btn active">All cases</button>
-              <button class="btn">My cases</button>
-              <button class="btn">Select cases...</button>
-            </div>
-            <br/><br/>
-            <div>
-              <button class="btn btn-primary" type="button">Go</button>
-            </div>
-          </center>
-        </div>
-      </div>
-    </div>        
   </body>
 </html>
