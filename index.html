@@ -118,9 +118,15 @@
       }
 
       * { 
-        -webkit-touch-callout: none !important;
+        /* prevent callout when holding tap on links (the native dialog that comes up) */
+        -webkit-touch-callout: none !important; 
+        /* prevent webkit from resizing text to fit */
+        -webkit-text-size-adjust: none; 
+        /* make transparent link selection, adjust last value opacity 0 to 1.0 */
         -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
         -moz-tap-highlight-color: rgba(255, 255, 255, 0);
+        /* prevent copy paste, to allow, change 'none' to 'text' */
+        -webkit-user-select: none;
       }
       .icon-chevron-right {
         float: right;
