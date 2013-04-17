@@ -4,12 +4,12 @@
     <title></title>
     <link rel="stylesheet" type="text/css" href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css">
     <script type='text/javascript' src='js/zepto.min.js'></script>        
-    <script type='text/javascript' src='js/touch.js'></script> 
     <script type='text/javascript' src="js/bootstrap.min.js"></script>
     <script type='text/javascript' src="js/iscroll.js"></script>
     <script type='text/javascript' src="js/handlebars.js"></script>
     <script type='text/javascript' src="js/underscore-min.js"></script>
     <script type='text/javascript' src="js/backbone-min.js"></script>
+    <script type='text/javascript' src="js/fastclick.js"></script>
     <style>
       body {
         overflow: hidden; 
@@ -221,8 +221,13 @@
             return false;
           });
           
-          $('.stage-center').swipeRight(function() {
-            $('.stage-center').addClass('disabled');
+          var touchstart;
+          $('.stage-center').bind('touchstart', function(e){
+            touchstart = e.touches[0].pageX
+          }).bind('touchmove', function(e) {
+            if (touchstart < 50 && e.touches[0].pageX > touchstart + 50) {
+              $(this).addClass('disabled');
+            }
           });
         }
         
@@ -242,6 +247,10 @@
         
         initialize();
       });
+      
+      window.addEventListener('load', function() {
+          new FastClick(document.body);
+      }, false);
     </script>
   </head>
   <body>
