@@ -3,14 +3,6 @@
   <head>
     <title></title>
     <link rel="stylesheet" type="text/css" href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css">
-    <script src="phonegap.js"></script>
-    <script type='text/javascript' src='js/zepto.min.js'></script>        
-    <script type='text/javascript' src="js/bootstrap.min.js"></script>
-    <script type='text/javascript' src="js/iscroll.js"></script>
-    <script type='text/javascript' src="js/handlebars.js"></script>
-    <script type='text/javascript' src="js/underscore-min.js"></script>
-    <script type='text/javascript' src="js/backbone-min.js"></script>
-    <script type='text/javascript' src="js/fastclick.js"></script>
     <style>
       body {
         overflow: hidden; 
@@ -36,23 +28,26 @@
         left: 100%;
       }
       .stage-center.disabled {
-        -webkit-transform: translate3d(252px, 0, 0);
-        -moz-transform: translate3d(252px, 0, 0);
-        transform: translate3d(252px, 0, 0);
+        -webkit-transform: translate3d(250px, 0, 0);
+        -moz-transform: translate3d(250px, 0, 0);
+        transform: translate3d(250px, 0, 0);
       }
       #leftrail {
         height: 100%;
         width:250px;
         position:absolute;
+        overflow:auto;
         z-index:1;
         border-right:1px solid #ddd;
-        background: #f5f5f5;              
+        background: #fff;
+        -webkit-overflow-scrolling: touch;
       }
       .content {
         position:absolute;
         width: 100%;
         height: 100%;
         overflow:auto;
+        -webkit-overflow-scrolling: touch;
       }
       .toprail {
         position:absolute;
@@ -64,14 +59,37 @@
         -webkit-transition-duration: .2s;
         -o-transition-duration: .2s;
       }
-
+      
+      #leftrail {
+        background:#111;
+      }
+      #leftrail * {
+        text-shadow:none;
+      }
+      #leftrail a, #leftrail li {
+        color:#eee;
+      }
+      #leftrail a:hover {
+        background:none;
+      }
+      #leftrail li.divider {
+        background:#333;
+        border-bottom:none;
+      }
       .navbar .navbar-inner {
         border-radius: 0;
-        padding-left: 5px;
+        padding: 0;
+        background-image: none;
+        background-color: #fff;
+        box-shadow: 0 0px 10px rgba(0, 0, 0, .165) !important;
+        
       }
       .navbar .navbar-inner .btn-navbar {
         display: block;
         float: left; 
+      }
+      .navbar .brand {
+        color:#333;
       }
       .navbar-inverse .brand:hover {
         color:#999;
@@ -79,7 +97,13 @@
       .content-inner {
         padding:55px 15px 15px;
       }
-
+      h4 {
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        font-size: 20px;
+        font-weight: 200;
+        color:#333;
+      }
+      
       @-webkit-keyframes opacity {
         0% { opacity: 1; }
       100% { opacity: 0; }
@@ -91,14 +115,14 @@
 
       #loading {
         text-align: center; 
-        margin: 150px 0 0 0;
+        margin: 50px 0 0 0;
         font-size: 20px;
         font-weight: 200;
         color:#aaa;
       }
 
       #loading span {
-        font-size:45px;
+        font-size:85px;
         -webkit-animation-name: opacity;
         -webkit-animation-duration: 1s;
         -webkit-animation-iteration-count: infinite;
@@ -108,38 +132,31 @@
         -moz-animation-iteration-count: infinite;
       }
 
-      #loading span:nth-child(3) {
+      #loading span:nth-child(2) {
         -webkit-animation-delay: 100ms;
         -moz-animation-delay: 100ms;
       }
 
-      #loading span:nth-child(4) {
+      #loading span:nth-child(3) {
         -webkit-animation-delay: 300ms;
         -moz-animation-delay: 300ms;
       }
 
       * { 
         /* prevent callout when holding tap on links (the native dialog that comes up) */
-        -webkit-touch-callout: none !important; 
+        -webkit-touch-callout: none; 
         /* prevent webkit from resizing text to fit */
         -webkit-text-size-adjust: none; 
         /* make transparent link selection, adjust last value opacity 0 to 1.0 */
         -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
         -moz-tap-highlight-color: rgba(255, 255, 255, 0);
-        /* prevent copy paste, to allow, change 'none' to 'text' */
-        -webkit-user-select: none;
-      }
-      .icon-chevron-right {
-        float: right;
-        margin-top: 2px;
-        margin-right: -6px;
-        opacity: .25;
+        -webkit-user-select:auto;
       }
       
       .scrollyV {
 	position:absolute;
 	z-index:100;
-	width:4px;bottom:7px;top:2px;right:1px
+	width:2px;bottom:7px;top:2px;right:1px
       }
 
       .scrollyV > div {
@@ -153,35 +170,261 @@
 	-webkit-box-sizing:border-box;
 	-webkit-border-radius:2px;
       }
+      #leftrail .scrollyV > div {
+        background:#555;
+      }
+      
+      .metadata {
+        color:#999
+      }
+      
+      .result-ul {
+        margin:0;
+        list-style:none;
+        border-top:1px solid #ddd
+      }      
+      .result-li {
+        height:65px;
+        border-bottom:1px solid #ddd;
+        padding:15px 0;
+        overflow:hidden;
+      }
+      .result-li h4 {
+        margin:0;
+        color:#333;
+      }      
+      .result-li a:hover {
+        text-decoration: none;
+      }      
+      .result-li img {
+        float:left;height:64px;width:64px;margin:0 10px 0 0;
+      }      
+      .result-li .icon-chevron-right {
+        float: right;
+        margin-top: 27px;
+        margin-right: 0px;
+      }
+      
+      .img-medium {
+        height:256px
+      }
+      
+      @media only screen and (min-width: 1768px){
+        .stage-center.disabled, .stage-center {
+          -webkit-transform: translate3d(0, 0, 0);
+          -moz-transform: translate3d(0, 0, 0);
+          transform: translate3d(0, 0, 0);
+          left:250px;
+          right:0;
+          width:auto;
+          
+        }
+        .transition {
+          -moz-transition-duration: 0;
+          -webkit-transition-duration: 0;
+          -o-transition-duration: 0;
+        }
+        .nav > li > a.menulink {
+          display: none ;
+        }
+        .navbar .brand {
+          margin:0;
+        }
+      }
     </style>
+  </head>
+  <body>
+    <script id="page-tpl" type="text/x-handlebars-template">
+      <div class="page {{pageClassName}}">
+        <div class="toprail navbar">
+          <div class="navbar-inner">
+            <ul class="nav">
+              <li>
+                <a class="menulink"><span class="icon-align-justify"></span></a>
+              </li>
+            </ul>
+            <span class="brand">{{pageTitle}}</span>
+            <ul class="nav pull-right">
+              <li><a id="marklink"><i></i></a></li>
+              <li><a class="backlink"><i class="icon-chevron-left"></i></a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="content">
+          <div class="content-inner">
+            <p id="loading"><span>.</span><span>.</span><span>.</span></p>
+          </div>
+        </div>
+      </div>
+    </script>
+    
+    <script id="search-form-tpl" type="text/x-handlebars-template">
+      <form class="form-search">
+        <input id="search-input" type="text" class="search-query input-block-level" placeholder="Search beers and breweries..." {{#if query}}value="{{query}}"{{/if}}/>
+      </form>
+    </script>
+    
+    <script id="beer-li-tpl" type="text/x-handlebars-template">
+      <li class="result-li">
+        <a href="#beer/{{obj.id}}">
+          <i class="icon-chevron-right"></i>
+          {{#if obj.labels.icon}}
+            <img src="{{obj.labels.icon}}"/>
+          {{else}}  
+            <img src="img/beer-icon.png"/>
+          {{/if}}
+          <div class="result-text">
+            <h4 style="">{{obj.name}}</h4>
+            {{#each obj.breweries}}
+              <div class="metadata">{{this.name}}&nbsp;</div>
+            {{/each}}
+            <div class="metadata">{{obj.style.name}}&nbsp;</div>
+          </div>            
+        </a>
+      </li>
+    </script>
+
+    <script id="brewery-li-tpl" type="text/x-handlebars-template">
+      <li class="result-li">
+        <a href="#brewery/{{obj.id}}">
+          <i class="icon-chevron-right"></i>
+          {{#if obj.images.icon}}
+            <img src="{{obj.images.icon}}"/>
+          {{else}}  
+            <img src="img/brewery-icon.png"/>
+          {{/if}}
+          <div>
+            <div class="metadata">&nbsp;</div>
+            <h4 style="">{{obj.name}}</h4>
+          </div>
+        </a>
+      </li>
+    </script>
+    
+    <script id="beer-tpl" type="text/x-handlebars-template">
+      {{#if obj.labels.medium}}
+        <img class="img-medium" src="{{obj.labels.medium}}"/>
+      {{else}}
+        <img class="img-medium" src="img/no-label.png"/>
+      {{/if}}
+      <div class="metadata">{{obj.style.name}}</div> 
+      <div class="metadata">
+       {{obj.glass.name}} glass / {{obj.abv}} ABV / {{obj.ibu}} IBU
+      </div>
+      
+      <p class="result-description">{{obj.description}}</p>
+      <p class="result-available">{{obj.available.description}}</p>
+      <p class="result-pairings">{{obj.foodPairings}}</p>
+      <div class="breweries">
+      {{#each obj.breweries}}
+        <a href="#brewery/{{this.id}}">{{this.name}}</a>
+      {{/each}}
+      </div>      
+    </script>
+
+    <script id="brewery-tpl" type="text/x-handlebars-template">
+      {{#if obj.images.medium}}
+        <img class="img-medium" src="{{obj.images.medium}}"/>
+      {{/if}}
+      <div class="metadata">Started in {{obj.established}} / <a href="{{obj.website}}" target="_blank">Visit website</a></div> 
+      <p class="result-description">{{obj.description}}</p>
+    </script>
+    
+    <script id="bookmark-li-tpl" type="text/x-handlebars-template">
+      {{#each bookmarks}}
+      <li><a href="#{{this.path}}">{{this.name}}</a></li>
+      {{/each}}
+    </script>
+    
+    <script id="leftrail-tpl" type="text/x-handlebars-template">
+      <div id="leftrail">
+        <div class="leftrail-inner">
+          <ul class="nav nav-list">
+            <li><a href="#">Search</a></li>
+            <li class="divider"></li>
+            <li class="nav-header">Bookmarks</li>
+          </ul>
+          <ul id="bookmarks" class="nav nav-list">                    
+          </ul>
+          <ul class="nav nav-list">
+            <li class="divider"></li>
+            <li><a href="#item/home">Home</a></li>
+            <li><a href="#item/library">Library</a></li>
+            <li><a href="#item/applications">Applications</a></li>
+            <li class="nav-header">Another list header</li>
+            <li><a href="#item/profile">Profile</a></li>
+            <li><a href="#item/settings">Settings</a></li>
+            <li class="divider"></li>
+            <li><a href="#item/help">Help</a></li>
+            <li class="nav-header">List header</li>
+            <li><a href="#item/home">Home</a></li>
+            <li><a href="#item/library">Library</a></li>
+            <li><a href="#item/applications">Applications</a></li>
+            <li class="nav-header">Another list header</li>
+            <li><a href="#item/profile">Profile</a></li>
+            <li><a href="#item/settings">Settings</a></li>
+            <li class="divider"></li>
+            <li><a href="#item/help">Help</a></li>
+            <li class="nav-header">List header</li>
+            <li><a href="#item/home">Home</a></li>
+            <li><a href="#item/library">Library</a></li>
+            <li><a href="#item/applications">Applications</a></li>
+            <li class="nav-header">Another list header</li>
+            <li><a href="#item/profile">Profile</a></li>
+            <li><a href="#item/settings">Settings</a></li>
+            <li class="divider"></li>
+            <li><a href="#item/help">Help</a></li>        
+          </ul>
+        </div>
+      </div>
+    </script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>     
+    <script type='text/javascript' src="js/bootstrap.js"></script>
+    <script type='text/javascript' src="js/iscroll.js"></script>
+    <script type='text/javascript' src="js/handlebars.js"></script>
+    <script type='text/javascript' src="js/underscore-min.js"></script>
+    <script type='text/javascript' src="js/backbone-min.js"></script>
+    <script type='text/javascript' src="js/fastclick.js"></script>
     <script>
-      Zepto(function($){
+      jQuery(function($){
         //define Router
         AppRouter = Backbone.Router.extend({
             routes: {
-              "":"frontPage",
+              "":"searchPage",
               "item/:name":"listPage",
-              "item/:name/:id":"itemPage"
+              "item/:name/:id":"itemPage",
+              'search/:query':"resultsPage",
+              'beer/:id':"beerPage",
+              'brewery/:id':"breweryPage"
             },
 
-            frontPage: function() {
-              loadPage('Front page', renderFrontContent, 'front-page');
+            searchPage: function() {
+              loadPage('Search', 'home-page', [renderSearchContent, 300]);
             },
             listPage: function (name) {
-              loadPage(name, renderListContent, 'list-page');
+              loadPage(name, 'list-page', [renderListContent, 1200, name]);
             },
             itemPage: function (name, id) {
-              loadPage(name + ' ' + id, renderItemContent, 'item-page');
+              loadPage(name + ' ' + id, 'item-page', [renderItemContent, 4000, name, id]);
+            },
+            resultsPage: function(query) {
+              loadPage('Search: ' + query, 'results-page', [renderResults, 0, query])
+            },
+            beerPage: function(id) {
+              loadPage('', 'beer-page', [renderResult, 0, 'beer', id])
+            },
+            breweryPage: function(id) {
+              loadPage('', 'brewery-page', [renderResult, 0, 'brewery', id])
             }
         });
         var appRouter = new AppRouter();
         Backbone.history.start();
         
-        function loadPage(text, next, className) {
-          var pageTemplate = Handlebars.compile($("#page-tpl").html());
-          var page = $(pageTemplate({pageClassName: className, pageTitle: text}));
-          changePage(page);
-          window.setTimeout(next, 1000, text);
+        function loadPage(pageTitle, pageClass, args) {
+          var markup = handlebarIt("#page-tpl", {pageClassName: pageClass, pageTitle: pageTitle});
+          changePage($(markup));
+          window.setTimeout.apply(this, args)
         }
         
         function changePage(page) {
@@ -198,8 +441,136 @@
           });
         }
 
-        function renderFrontContent(text) {
-          $('.stage-center .content-inner').html(text);
+        var iscrolls = {};
+        function iscrollIt(selector) {
+          if (iscrolls[selector] != null) iscrolls[selector].destroy();
+          iscrolls[selector] = new iScroll(
+            $(selector).get(0), 
+            { scrollbarClass: 'scrolly', 
+              useTransition:true, 
+              bounce:false,
+              zoom: false,
+              onBeforeScrollStart: function (e) {
+                var target = e.target;
+                while (target.nodeType != 1) target = target.parentNode;
+                if (target.tagName != 'SELECT' && target.tagName != 'INPUT' && target.tagName != 'TEXTAREA')
+                e.preventDefault();
+              }
+            }
+          );
+        }
+        
+        function handlebarIt(selector, args) {
+          var tpl = Handlebars.compile($(selector).html());
+          return tpl(args);
+        }
+
+        function renderSearchContent(text) {
+          $('.stage-center .content-inner').html(handlebarIt("#search-form-tpl", {}));
+          $('.form-search').submit(function(e) {
+            location.hash = 'search/' + $('#search-input').val();
+            return false;
+          });
+          $('#search-input').focus().select();
+          iscrollIt('.stage-center .content');
+        }
+
+        function renderResults(query) {
+          var el = $('.stage-center .content-inner');
+          $(el).html(handlebarIt('#search-form-tpl', {query: query}));
+          $('.form-search').submit(function(e) {
+            location.hash = 'search/' + $('#search-input').val();
+            return false;
+          });
+          $(el).append('<ul class="result-ul"><p id="loading"><span>.</span><span>.</span><span>.</span></p></ul>');
+          $.getJSON("/bdb/search?withBreweries=Y&q=" + query, function(response) {
+            console.log(response);
+            var output = '';
+            $('.brand').html(response.totalResults + ' results');
+            $(response.data).each(function() {
+              var tpl = this.type == 'brewery' ? '#brewery-li-tpl' : '#beer-li-tpl';
+              output += handlebarIt(tpl, {obj: this});
+            });
+            $('.result-ul', el).html(output);
+            iscrollIt('.stage-center .content');
+          });
+        }
+        
+        function renderResult(type, id) {
+        
+          $.getJSON("/bdb/" + type + "/" + id + "?withBreweries=Y", function(response) {
+            console.log(response);
+            var el = $('.stage-center .content-inner');
+            $(el).html(handlebarIt("#"+ type + "-tpl", {obj: response.data}));
+            $('.brand').html(response.data.name);
+            renderBookmarkLink(type, id, response.data.name);            
+            if (type == 'brewery') {
+              $(el).append('<ul class="result-ul"><p id="loading"><span>.</span><span>.</span><span>.</span></p></ul>');
+              var output = '';
+              $.getJSON("/bdb/" + type + "/" + id + "/beers?withBreweries=Y", function(response) {
+                $(response.data).each(function() {
+                  output += handlebarIt('#beer-li-tpl', {obj: this});
+                });
+                $('.result-ul', el).html(output);
+                iscrollIt('.stage-center .content');
+              });
+            }
+            else if (type == 'beer') {
+              var output = '';
+              $(response.data.breweries).each(function() {
+                output += handlebarIt('#brewery-li-tpl', {obj: this});
+              });
+              $('.breweries', el).html('<ul class="result-ul">' + output + '</ul>');
+            }
+            iscrollIt('.stage-center .content');
+          });
+        }
+        
+        function renderBookmarkLink(type, id, name) {
+          bookmarks = loadBookmarks();
+          var path = type + '/' + id;
+          $('#marklink i').attr('class', bookmarks[path] ? 'icon-star' : 'icon-star-empty');
+          $('#marklink').click(function() {
+            if (!bookmarks[path]) {
+              bookmarks[path] = {id: id, name: name, type: type, path: path}; 
+              saveBookmarks(bookmarks);
+              window.setTimeout(function() {
+                $('#marklink').tooltip('hide');
+              }, 1000);
+              renderAlert('Bookmark added.', $('#marklink'));
+              $('#marklink i').attr('class', 'icon-star');
+            }
+            else {
+              delete bookmarks[path];
+              saveBookmarks(bookmarks);
+              renderAlert('Bookmark removed.', $('#marklink'));              
+              $('#marklink i').attr('class', 'icon-star-empty');
+            }
+          });
+        }
+        
+        function renderAlert(text, el) {
+          $(el).tooltip({
+             placement: 'bottom',
+             title: text,
+             trigger: 'manual',
+             delay: 500
+          });
+          $(el).tooltip('show');
+          window.setTimeout(function() { $(el).tooltip('destroy'); }, 1000);          
+        }
+        
+        function loadBookmarks() {
+          var bookmarks = JSON.parse(window.localStorage.getItem("bookmarks"));
+          return !bookmarks ? {} : bookmarks;
+        }
+        
+        function saveBookmarks(bookmarks) {
+          if (bookmarks) window.localStorage.setItem("bookmarks", JSON.stringify(bookmarks));
+          else bookmarks = JSON.parse(window.localStorage.getItem("bookmarks"));
+          bookmarks = bookmarks ? bookmarks : {};
+          $('#bookmarks').html(handlebarIt('#bookmark-li-tpl', {bookmarks: bookmarks}));
+          //iscrollIt('#leftrail');
         }
 
         function renderListContent(text) {
@@ -207,49 +578,51 @@
           for (var i = 0; i < 50; i++) content += '<li><a href="#item/' + text + '/' + i + '"><i class="icon-chevron-right"></i>' + text + ' ' + i + '</a></li>'
           content = '<ul class="nav nav-tabs nav-stacked">' + content + '</ul>';
           $('.stage-center .content-inner').html(content);
-          contentScroll = new iScroll($('.stage-center .content').get(0), { scrollbarClass: 'scrolly' });
+          iscrollIt('.stage-center .content');
         }
                 
         function renderItemContent(text) {
           var content = '';
           for (var i = 0; i < 1000; i++) content += '' + text + ' ';
           $('.stage-center .content-inner').html(content);
-          contentScroll = new iScroll($('.stage-center .content').get(0), { scrollbarClass: 'scrolly' });
+          iscrollIt('.stage-center .content');
         }
                 
-        function registerPageEvents() {
-          if (contentScroll != null) contentScroll.destroy();
+        function registerPageEvents() {          
           $('.stage-center').bind('touchstart mousedown', function(){
             $(this).removeClass('disabled');
           });
                     
-          $('.menulink').bind('touchstart mousedown', function(e) {
+          $('.menulink, .brand').bind('touchstart mousedown', function(e) {
             $('.stage-center').toggleClass('disabled');
             return false;
           });
           
+          $('.backlink').click(function () {
+            window.history.back();
+          });
+          
           var touchstart;
           $('.stage-center').bind('touchstart', function(e){
-            touchstart = e.touches[0].pageX
-          }).bind('touchmove', function(e) {
-            if (touchstart < 50 && e.touches[0].pageX > touchstart + 50) {
+            touchstart = e.touches[0];
+          }).bind('touchmove', function(e) {//alert(touchstart + '|' + e.touches[0].pageX);
+            if (e.touches[0].pageX > touchstart.pageX + 50 && (e.touches[0].pageY - touchstart.pageY < 20) && (touchstart.pageY - e.touches[0].pageY < 20)) {
               $(this).addClass('disabled');
             }
           });
         }
         
-        var leftrailScroll;
-        var contentScroll;
         function initialize() {
           $('head').append('<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">');
           $('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); }); //make bootstrap dropdowns work on touch devices
-
+          
           //register leftrail events
+          $('body').append(handlebarIt('#leftrail-tpl'));
+          saveBookmarks();
           $('#leftrail a').click(function() {
             $('#leftrail li.active').removeClass('active');
-            $(this).parent().addClass('active');
           });
-          leftrailScroll = new iScroll($('#leftrail').get(0), { scrollbarClass: 'scrolly' });
+          iscrollIt('#leftrail');
         }
         
         initialize();
@@ -259,61 +632,6 @@
           new FastClick(document.body);
       }, false);
     </script>
-  </head>
-  <body>
-    <script id="page-tpl" type="text/x-handlebars-template">
-      <div class="page {{pageClassName}}">
-        <div class="toprail navbar navbar-inverse">
-          <div class="navbar-inner">
-            <a class="btn btn-navbar menulink">
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-            </a>
-            <span class="brand">{{pageTitle}}</span>
-            <div class="nav pull-right">
-              <!--<a href="#" class="btn btn-inverse "><i class="icon-white icon-chevron-left"></i> Back</a>-->
-            </div>
-          </div>
-        </div>
-        <div class="content">
-          <div class="content-inner">
-            <p id="loading">Loading<br/><span>.</span><span>.</span><span>.</span></p>
-          </div>
-        </div>
-      </div>
-    </script>
     
-    <div id="leftrail">
-      <ul class="nav nav-list nav-inverse">
-        <li class="nav-header">List header</li>
-        <li><a href="#item/home">Home</a></li>
-        <li><a href="#item/library">Library</a></li>
-        <li><a href="#item/applications">Applications</a></li>
-        <li class="nav-header">Another list header</li>
-        <li><a href="#item/profile">Profile</a></li>
-        <li><a href="#item/settings">Settings</a></li>
-        <li class="divider"></li>
-        <li><a href="#item/help">Help</a></li>
-        <li class="nav-header">List header</li>
-        <li><a href="#item/home">Home</a></li>
-        <li><a href="#item/library">Library</a></li>
-        <li><a href="#item/applications">Applications</a></li>
-        <li class="nav-header">Another list header</li>
-        <li><a href="#item/profile">Profile</a></li>
-        <li><a href="#item/settings">Settings</a></li>
-        <li class="divider"></li>
-        <li><a href="#item/help">Help</a></li>
-        <li class="nav-header">List header</li>
-        <li><a href="#item/home">Home</a></li>
-        <li><a href="#item/library">Library</a></li>
-        <li><a href="#item/applications">Applications</a></li>
-        <li class="nav-header">Another list header</li>
-        <li><a href="#item/profile">Profile</a></li>
-        <li><a href="#item/settings">Settings</a></li>
-        <li class="divider"></li>
-        <li><a href="#item/help">Help</a></li>        
-      </ul>
-    </div>
   </body>
 </html>
