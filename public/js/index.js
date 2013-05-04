@@ -1,4 +1,22 @@
+window.addEventListener('load', function() {
+  new FastClick(document.body);
+}, false);
+
+
+//calling these functions lets us correctly animate transition direction in changePage
+var direction  = '';
+var goForward = function (hash) {
+  direction = 'forward';
+  window.location.hash = hash;
+}
+var goHistory = function (step) {
+  direction = step < 0 ? 'backward' : 'forward';
+  window.history.go(step);
+}
+
+
 jQuery(function($){
+
 var hb = {};
 var handlebarIt = function(selector, args) {
   if (!hb[selector]) {
@@ -16,7 +34,7 @@ var iscrollIt = function(selector) {
       useTransition:true, 
       bounce:false,
       zoom: false,
-      onBeforeScrollStart: function (e) {
+      onBeforeScrollStart: function (e) { 
         var target = e.target;
         while (target.nodeType != 1) target = target.parentNode;
         if (target.tagName != 'SELECT' && target.tagName != 'INPUT' && target.tagName != 'TEXTAREA')
@@ -50,6 +68,59 @@ var setJSON = function (itemName, item) {
   window.localStorage.setItem(itemName, JSON.stringify(item));
 }
 
+function loadPage(pageTitle, pageClass, args) {
+  var page = $(handlebarIt("#page-tpl", {pageClassName: pageClass, pageTitle: pageTitle}));
+  changePage(page);
+  window.setTimeout.apply(this, args)
+}
+
+function changePageNoAnimation(page) {  
+  if ($('.stage-center').hasClass('disabled')) {
+    $(page).addClass('disabled');
+  }
+  $('.page').remove();
+  $(page).addClass('page stage-center transition');
+  $('body').append(page);
+
+  setTimeout(function() {
+    $(page).removeClass('disabled');
+    registerPageEvents();
+  });
+}
+
+function changePage(newPage) {
+  var self = this;
+  var currentPage = $('.stage-center');
+  $('.stage-right, .stage-left').remove(); // Cleaning up: remove old pages that were moved out of the viewport
+   
+  var newClasses = 'page stage-center transition';
+  currentClasses = 'page stage-left transition';
+  
+  if (currentPage.length == 0 || direction == '') { // If this is the first page, add it without animation
+    $(newPage).attr('class', 'page stage-center');
+    currentClasses = 'page stage-left';
+  }
+  else if ($(currentPage).hasClass('disabled')) { //if menu is open, only animate the menu close
+    $(newPage).attr('class', 'page stage-center disabled transition');
+    currentClasses = 'page stage-left';
+  }
+  else if (direction == 'forward') {
+    $(newPage).attr('class', 'page stage-right');
+  }
+  else {
+    $(newPage).attr('class', 'page stage-left');
+    currentClasses = 'page stage-right transition';
+  }
+
+  direction = '';
+  $('body').append(newPage);
+  setTimeout(function() { // Wait until the new page has been added to the DOM...
+      $(currentPage).attr('class', currentClasses);
+      $(newPage).attr('class', newClasses);
+      registerPageEvents();
+  });
+};
+
 //define Router
 AppRouter = Backbone.Router.extend({
     routes: {
@@ -82,7 +153,6 @@ AppRouter = Backbone.Router.extend({
       loadPage('', 'brewery-page', [renderResult, 0, 'brewery', id])
     },
     bdbLog: function(splat) {
-      console.log('/bdb/' + splat);
       fetchJSON('/bdb/' + splat, function(response) { console.log(response); });
     },
     nearbyPage: function() {
@@ -92,28 +162,10 @@ AppRouter = Backbone.Router.extend({
 var appRouter = new AppRouter();
 Backbone.history.start();
 
-
-function loadPage(pageTitle, pageClass, args) {
-  var page = $(handlebarIt("#page-tpl", {pageClassName: pageClass, pageTitle: pageTitle}));
-  if ($('.stage-center').hasClass('disabled')) {
-    $(page).addClass('disabled');
-  }
-  $('.page').remove();
-  $(page).addClass('page stage-center transition');
-  $('body').append(page);
-
-  setTimeout(function() {
-    $(page).removeClass('disabled');
-    registerPageEvents();
-  });
-
-  window.setTimeout.apply(this, args)
-}
-
 function renderSearchForm(scope, query) {
   scope = scope ? scope : 'all';
   query = query ? query : '';
-  $('.stage-center .content-inner').html(handlebarIt("#search-form-tpl", {}));
+  $('.stage-center .content-inner').html(handlebarIt("#search-form-tpl", {query: query}));
   $('.search-scope li a').click(function(e) {
     $('.search-scope li.active').removeClass('active');
     $(this).parent().addClass('active');
@@ -123,7 +175,7 @@ function renderSearchForm(scope, query) {
       if ($(this).val() != '') {
         scope = $(sourceElement).attr('data-scope');
         query = $(this).val();
-        loadPage('Search: ' + query, 'results-page', [renderResults, 0, scope, query])
+        //loadPage('Search: ' + query, 'results-page', [renderResults, 0, scope, query])
       }
     });
   }); 
@@ -231,11 +283,11 @@ function registerPageEvents() {
 
   $('.menulink').bind('touchstart mousedown', function(e) {
     //use this for phones with no dedicated back button
-    if (true || Backbone.history.fragment == '' || Backbone.history.fragment.indexOf('search') == 0) {
+    if (Backbone.history.fragment == '' || Backbone.history.fragment.indexOf('search') == 0) {
       $('.stage-center').toggleClass('disabled');
     }
     else {
-      window.history.back();
+      goHistory(-1);      
     }
     return false;
   });
@@ -288,6 +340,10 @@ function initialize() {
     $('#leftrail li.active').removeClass('active');
   });
   iscrollIt('#leftrail');
+  
+  $(document).click(function(e) {
+    console.log(e);
+  });
 }
 
 
@@ -296,6 +352,3 @@ function initialize() {
 initialize();
 });
 
-window.addEventListener('load', function() {
-  new FastClick(document.body);
-}, false);
