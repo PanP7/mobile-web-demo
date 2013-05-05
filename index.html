@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title></title>
     <link rel="stylesheet" type="text/css" href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css">
     <link rel="stylesheet" type="text/css" href="css/style.css">
@@ -17,7 +18,7 @@
             </ul>
             <span class="brand">{{pageTitle}}</span>
             <ul class="nav pull-right">
-              <li><a id="marklink"><i></i></a></li>
+              <li><a class="marklink"><i></i></a></li>
             </ul>
           </div>
         </div>
@@ -41,58 +42,52 @@
     </script>
     
     <script id="beer-li-tpl" type="text/x-handlebars-template">
-      <li class="result-li">
-        <a onclick="goForward('#beer/{{obj.id}}')">
-          <i class="icon-chevron-right"></i>
-          {{#if obj.labels.icon}}
-            <img src="{{obj.labels.icon}}"/>
-          {{else}}  
-            <img src="img/beer-icon.png"/>
-          {{/if}}
-          <div class="result-text">
-            <h4 style="">{{obj.name}}</h4>
-            {{#each obj.breweries}}
-              <div class="metadata">{{this.name}}&nbsp;</div>
-            {{/each}}
-            <div class="metadata">{{obj.style.name}}&nbsp;</div>
-          </div>            
-        </a>
-      </li>
+      <a class="list-item" href="#beer/{{obj.id}}">
+        <i class="icon-chevron-right"></i>
+        {{#if obj.labels.icon}}
+          <img src="{{obj.labels.icon}}"/>
+        {{else}}  
+          <img src="img/beer-icon.png"/>
+        {{/if}}
+        <div class="result-text">
+          <h4 style="">{{obj.name}}</h4>
+          {{#each obj.breweries}}
+            <div class="metadata">{{this.name}}&nbsp;</div>
+          {{/each}}
+          <div class="metadata">{{obj.style.name}}&nbsp;</div>
+        </div>            
+      </a>
     </script>
 
     <script id="brewery-li-tpl" type="text/x-handlebars-template">
-      <li class="result-li">
-        <a onclick="goForward('#brewery/{{obj.id}}')">
-          <i class="icon-chevron-right"></i>
-          {{#if obj.images.icon}}
-            <img src="{{obj.images.icon}}"/>
-          {{else}}  
-            <img src="img/brewery-icon.png"/>
-          {{/if}}
-          <div>
-            <div class="metadata">&nbsp;</div>
-            <h4 style="">{{obj.name}}</h4>
-          </div>
-        </a>
-      </li>
+      <a class="list-item" href="#brewery/{{obj.id}}">
+        <i class="icon-chevron-right"></i>
+        {{#if obj.images.icon}}
+          <img src="{{obj.images.icon}}"/>
+        {{else}}  
+          <img src="img/brewery-icon.png"/>
+        {{/if}}
+        <div>
+          <div class="metadata">&nbsp;</div>
+          <h4 style="">{{obj.name}}</h4>
+        </div>
+      </a>
     </script>
     
     <script id="location-li-tpl" type="text/x-handlebars-template">
-      <li class="result-li">
-        <a onclick="goForward('#brewery/{{obj.brewery.id}}')">
-          <i class="icon-chevron-right"></i>
-          {{#if obj.brewery.images.icon}}
-            <img src="{{obj.brewery.images.icon}}"/>
-          {{else}}  
-            <img src="img/brewery-icon.png"/>
-          {{/if}}
-          <div>
-            <h4 style="">{{obj.brewery.name}}</h4>
-            <div class="metadata">{{obj.locationTypeDisplay}} / Opened in {{obj.yearOpened}} / {{obj.distance}} miles</div>
-            <div class="metadata">{{obj.streetAddress}} {{obj.locality}}, {{obj.region}} {{obj.postalCode}}</div>
-          </div>
-        </a>
-      </li>
+      <a class="list-item" href="#brewery/{{obj.brewery.id}}">
+        <i class="icon-chevron-right"></i>
+        {{#if obj.brewery.images.icon}}
+          <img src="{{obj.brewery.images.icon}}"/>
+        {{else}}  
+          <img src="img/brewery-icon.png"/>
+        {{/if}}
+        <div>
+          <h4 style="">{{obj.brewery.name}}</h4>
+          <div class="metadata">{{obj.locationTypeDisplay}} / Opened in {{obj.yearOpened}} / {{obj.distance}} miles</div>
+          <div class="metadata">{{obj.streetAddress}} {{obj.locality}}, {{obj.region}} {{obj.postalCode}}</div>
+        </div>
+      </a>
     </script>
     
     <script id="beer-tpl" type="text/x-handlebars-template">
@@ -111,7 +106,7 @@
       <p class="result-pairings">{{obj.foodPairings}}</p>
       <div class="breweries">
       {{#each obj.breweries}}
-        <a onclick="goForward('#brewery/{{this.id}}')">{{this.name}}</a>
+        <a href="#brewery/{{this.id}}">{{this.name}}</a>
       {{/each}}
       </div>      
     </script>
@@ -120,13 +115,13 @@
       {{#if obj.images.large}}
         <img class="" src="{{obj.images.large}}"/>
       {{/if}}
-      <div class="metadata">Started in {{obj.established}} / <a onclick="goForward('{{obj.website}}')" target="_blank">Visit website</a></div> 
+      <div class="metadata">Started in {{obj.established}} / <a href="{{obj.website}}" target="_blank">Visit website</a></div> 
       <p class="result-description">{{obj.description}}</p>
     </script>
     
     <script id="bookmark-li-tpl" type="text/x-handlebars-template">
       {{#each bookmarks}}
-      <li><a onclick="goForward('#{{this.path}}')">{{this.name}}</a></li>
+      <li><a href="#{{this.path}}">{{this.name}}</a></li>
       {{/each}}
     </script>
     
@@ -134,8 +129,8 @@
       <div id="leftrail">
         <div class="leftrail-inner">
           <ul class="nav nav-list">
-            <li><a onclick="goForward('#')">Search</a></li>
-            <li><a onclick="goForward('#nearby')">Nearby Breweries</a></li>
+            <li><a href="#">Search</a></li>
+            <li><a href="#nearby">Nearby Breweries</a></li>
             <li class="divider"></li>
             <li class="nav-header">Bookmarks</li>
           </ul>
