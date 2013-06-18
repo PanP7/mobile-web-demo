@@ -37,4 +37,4 @@ app.get('/bdb/:required/:optional?/:optional2?', function(req, res) {
 
   proxyReq.end();
 });
-app.use(express.static(__dirname + '/public'));
+app.use('/public', express.static(__dirname + '/public'));

@@ -1,7 +1,24 @@
+* {
+  font-family: helvetica;
+  padding:0;
+  margin:0;
+}
 body {
   margin:0;
   overflow: hidden; 
   padding:0;
+}
+a {
+  text-decoration: none;
+}
+p {
+  margin:0 0 20px;
+}
+ul, li {
+  list-style: none;
+}
+img {
+  max-width: 100%
 }
 .page {
   position: absolute;
@@ -72,13 +89,21 @@ body {
   background:#333;
   border-bottom:none;
 }
+#leftrail a, #leftrail .nav-header {
+  display: block;
+  border-bottom: 1px solid #222;
+  padding:10px;
+  color: #999;
+}
+
 .navbar .navbar-inner {
   border-radius: 0;
   padding: 0;
   background-image: none;
   background-color: #fff;
   box-shadow: 0 0px 10px rgba(0, 0, 0, .165) !important;
-
+  border-bottom: #ccc;
+  height:40px;
 }
 .navbar .navbar-inner .btn-navbar {
   display: block;
@@ -87,7 +112,6 @@ body {
 .navbar .brand {
   color:#333;
   margin:0;
-  padding:10px 0;
 }
 .navbar-inverse .brand:hover {
   color:#999;
@@ -217,6 +241,24 @@ h4 {
 .nav > li > a.menulink {
   padding:10px 0px 10px 10px;
   margin:0 -5px 0 0;
+}
+
+.navbar a, .navbar .brand {
+  cursor: pointer;
+}
+.navbar .nav {
+  float:left;
+}
+.navbar .nav li {
+  padding:10px 5px;
+}
+.navbar .brand {
+  float:left;
+  padding: 10px 5px;
+}
+
+.navbar .pull-right {
+  float:right;
 }
 
 @media only screen and (min-width: 1768px){

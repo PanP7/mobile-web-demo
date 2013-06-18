@@ -120,13 +120,18 @@ var PageMan = {
       $(this).removeClass('leftrail-enabled');
     });
 
-    $('.menulink').bind('touchstart mousedown', function(e) {
+    $('.backlink, .brand').bind('touchstart mousedown', function(e) {
       if (Backbone.history.fragment == '' || Backbone.history.fragment.indexOf('search') == 0) {
         $('.stage-center').toggleClass('leftrail-enabled');
       }
       else {
         PageMan.goHistory(-1);      
       }
+      return false;
+    });
+    
+    $('.menulink').bind('touchstart mousedown', function(e){
+      $('.stage-center').toggleClass('leftrail-enabled');
       return false;
     });
 
@@ -285,6 +290,7 @@ function renderBookmarkLink(type, id, name) {
   var link = $('.marklink');
   
   $(icon).attr('class', bookmarks[path] ? 'icon-star' : 'icon-star-empty');
+  $(icon).html(bookmarks[path] ? '+' : '-');
   $(link).click(function() {
     if (!bookmarks[path]) {
       bookmarks[path] = {id: id, name: name, type: type, path: path}; 
@@ -292,6 +298,7 @@ function renderBookmarkLink(type, id, name) {
       renderBookmarks();
       renderAlert('Bookmark added.', this);
       $(icon).attr('class', 'icon-star');
+      $(icon).html('+');
     }
     else {
       delete bookmarks[path];
@@ -299,11 +306,13 @@ function renderBookmarkLink(type, id, name) {
       renderBookmarks();
       renderAlert('Bookmark removed.', this);              
       $(icon).attr('class', 'icon-star-empty');
+      $(icon).html('-');
     }
   });
 }
 
 function renderAlert(text, el) {
+  /*
   $(el).tooltip({
      placement: 'bottom',
      title: text,
@@ -312,6 +321,7 @@ function renderAlert(text, el) {
   });
   $(el).tooltip('show');
   window.setTimeout(function() { $(el).tooltip('destroy'); }, 1000);          
+  */
 }
 
 
@@ -345,6 +355,21 @@ function renderNearby() {
       }
     );
   } 
+}
+
+function renderListContent(text) {
+  var content = '';
+  for (var i = 0; i < 50; i++) content += '<li><a href="#item/' + text + '/' + i + '"><i class="icon-chevron-right"></i>' + text + ' ' + i + '</a></li>'
+  content = '<ul class="nav nav-tabs nav-stacked">' + content + '</ul>';
+  $('.stage-center .content-inner').html(content);
+  iscrollIt('.stage-center .content');
+}
+                
+function renderItemContent(text) {
+  var content = '';
+  for (var i = 0; i < 1000; i++) content += '' + text + ' ';
+  $('.stage-center .content-inner').html(content);
+  iscrollIt('.stage-center .content');
 }
 
 });
