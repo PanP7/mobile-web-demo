@@ -362,14 +362,14 @@ function renderListContent(text) {
   for (var i = 0; i < 50; i++) content += '<li><a href="#item/' + text + '/' + i + '"><i class="icon-chevron-right"></i>' + text + ' ' + i + '</a></li>'
   content = '<ul class="nav nav-tabs nav-stacked">' + content + '</ul>';
   $('.stage-center .content-inner').html(content);
-  Util.iscrollIt('.stage-center .content');
+  PageMan.registerContentEvents();
 }
                 
 function renderItemContent(text) {
   var content = '';
   for (var i = 0; i < 1000; i++) content += '' + text + ' ';
   $('.stage-center .content-inner').html(content);
-  Util.iscrollIt('.stage-center .content');
+  PageMan.registerContentEvents();
 }
 
 });
